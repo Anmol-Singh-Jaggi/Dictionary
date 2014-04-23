@@ -1,0 +1,18 @@
+       *******************************************
+       * The program has an in-built help manual *
+       *******************************************
+  
+      => Compile using -std=c++11 
+  
+1). How to enter a meaning?
+  - You can write a "multiline" meaning of as much as lines as you want.
+    When you're done writing, just press Enter twice.
+  
+
+2). How to exit?
+  - Just press Enter when it asks to enter a word..	[ Do NOT click on the close button of the window!!! ]
+
+                              
+					
+
+                                      *** Type "help" for more info!! ***
