@@ -243,7 +243,7 @@ void process(const string &query)  // Run the query..
     }
     else if(before_space=="reset")
     {
-        assert(!system("reset"));
+        system("reset");
     }
     else if(before_space=="bak")
     {
