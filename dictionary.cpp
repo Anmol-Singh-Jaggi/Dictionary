@@ -110,12 +110,14 @@ void readFromFile(const char* path,map<string,string> &mapping)  // Get the cont
     while(1)
     {
         getline(fin,word,'\n'); // A word is terminated by a '\n'..
-        getline(fin,meaning,'0');  // A meaning is terminated by a '0'...
-        fin.get(); // Take the remaining '\n'..
         if(fin.eof())  // End-Of-File reached..
-        {
             break;
-        }
+        if(word.empty())
+            continue;
+        getline(fin,meaning,'$');  // A meaning is terminated by a '$'...
+        if(meaning.empty())
+            continue;
+        fin.get(); // Take the remaining '\n'..
         mapping[word]=meaning;
     }
     fin.close();
@@ -127,7 +129,7 @@ void writeToFile(const char* path,map<string,string> &mapping) // Save the dicti
     fout.open(path);
     for(const auto& it:mapping)
     {
-        fout<<it.first<<"\n"<<it.second<<"0\n";
+        fout<<it.first<<"\n"<<it.second<<"$\n";
         // Word terminated by a '\n'..
         // Meaning terminated by a "0\n"..
     }
