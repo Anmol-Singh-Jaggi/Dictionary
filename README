@@ -1,18 +1,19 @@
-       *******************************************
-       * The program has an in-built help manual *
-       *******************************************
+Frequently Asked Questions -:
+
+1). How to compile it ?
+  - g++ -std=c++11 -O2  .../dictionary.cpp -o dictionary
   
-      => Compile using -std=c++11 
-  
-1). How to enter a meaning?
+2). How to enter a word ?  
+  - When the program asks to enter a query, enter a word (without spaces, case-sensitive) to add to the dictionary...
+   
+3). How to enter a meaning?
   - You can write a "multiline" meaning of as much as lines as you want.
     When you're done writing, just press Enter twice.
+    [ If the entered meaning is empty, the word will be discarded ]
+
+4). What functionality/commands are supported ?
+  - Type "help" to show a list of commands when it asks for a query.
   
+5). How to exit?
+  - Just press Enter when it asks to enter a query..	[ Do NOT click on the close button of the window!!! ]
 
-2). How to exit?
-  - Just press Enter when it asks to enter a word..	[ Do NOT click on the close button of the window!!! ]
-
-                              
-					
-
-                                      *** Type "help" for more info!! ***

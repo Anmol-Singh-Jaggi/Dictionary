@@ -1,105 +1,130 @@
 #include<bits/stdc++.h>
 using  namespace std;
 
-map<string,string> dictionary,dictionary_bak;  // Store word-meaning pairs...
+//*********************************************************************************************
+// Global Declarations begin...
 
-string config_path=string(getenv("HOME"))+string("/.dict_config.txt");  // Path to store configuration File...
-// Configuration File consists of the location of dictionary and dictionary_bak..
+map<string,string> dictionary,dictionary_bak;  // The underlying Data Structure for dictionary...
+const char* config_path=strcat(getenv("HOME"),"/.dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup...
+char dict_path[1001];   // dict_path stores the location of the dictionary..
+char bak_dict_path[1001];   // bak_dict_path stores the location of the backup dictionary..
 
-char path[1000],bak_path[1000];
-// path stores the path of the dictionary..
-// bak_path stores the path of the backup dictionary..
+// Global Declarations end...
+//**********************************************************************************************
 
-void checkConfig()  // Check if the dictionary can be loaded..
+inline bool locationExists(const char* path)   // Check if the file stored at "path" has a valid location.. [ So that a dictionary can be created there ]
 {
-    string s_path,s_bak_path;
-    ifstream fin(config_path.c_str());
-    cout<<"Checking the location of the configuration file....  ";
-    if(fin.good()) // Configuration File opened successfully..
+    ifstream fin(path);
+    if(fin.good())  // A File is already there... so location is OK..
     {
-        cout<<"Configuration File present..\n";
-        getline(fin,s_path);  // Get the location of the dictionary..
-        getline(fin,s_bak_path);    // Get the location of the backup dictionary..
+        return true;
     }
-    else
+    fin.close();
+    ofstream fout(path);  // Try to create a file...
+    if(fout.good())  // File is writable...
     {
-        cout<<"Configuration File not present..\n";
+        remove(path); // Remove the file which was created...
+        return true;
     }
-    cout<<"Checking the location of the dictionary file....  ";
-    ofstream fout2(s_path.c_str(),fstream::app);
-    ifstream fin2(s_path.c_str());
-    while(!fin2.good())  // Ask where to store dictionary..
-    {
-        cout<<"Invalid Path!\nEnter the path to store dictionary\nFor example - /home/anmol/Documents/dictionary.txt\n";
-        getline(cin,s_path);
-        fout2.open(s_path.c_str(),fstream::app);
-        fin2.open(s_path.c_str());
-    }
-    cout<<"Dictionary File at a valid location..\n";
-    fin2.close();
-    fout2.close();
-    cout<<"Checking the location of the backup dictionary file....   ";
-    ofstream fout2_bak(s_bak_path.c_str(),fstream::app);
-    ifstream fin2_bak(s_bak_path.c_str());
-    while(!fin2_bak.good())  // Ask where to store dictionary_bak..
-    {
-        cout<<"Invalid Path!\nEnter the path to store dictionary backup\nFor example - /home/anmol/Documents/dictionary_bak.txt\n";
-        getline(cin,s_bak_path);
-        fout2_bak.open(s_bak_path.c_str(),fstream::app);
-        fin2_bak.open(s_bak_path.c_str());
-    }
-    cout<<"Dictionary Backup File at a valid location..\n";
-    fin2_bak.close();
-    fout2_bak.close();
-    cout<<"Writing the location of dictionary and backup dictionary to the configuration file...   ";
-    ofstream fout(config_path.c_str());
-    fout<<s_path<<"\n"<<s_bak_path;
-    if(fout.good())
-        cout<<"Successful!\n";
-    else
-        cout<<"Error writing to the config file!!\n"; // Shouldn't happen usually..
-    fout.close();
-    strcpy(path,s_path.c_str());  // Copy the contents of s_path into path..
-    strcpy(bak_path,s_bak_path.c_str());  // Copy the contents of s_bak_path into bak_path..
-    fin.close(); // Close the config file..
+    return false;
 }
 
-void readFromFile(const char* filePath,map<string,string> &mapping)  // Get the contents of the dictionary from "filePath" and store it in memory as a mapping..
+inline bool fileExists(const char* path)   // Check if a file at a location named "path" exists..
+{
+    ifstream fin(path);
+    return fin.good();
+}
+
+void getLocations()  // Input locations of dictionary and its backup from the user...
+{
+    while(1)
+    {
+        cout<<"\nEnter the path to store dictionary\n[ For example - /home/anmol/Documents/dictionary.txt ]\n";
+        cin.getline(dict_path,1000);
+        if(!locationExists(dict_path))
+        {
+            cout<<"Error : Invalid Location..  Please specify an alternate location\n";
+        }
+        else
+        {
+            break;
+        }
+    }
+    while(1)
+    {
+        cout<<"\nEnter the path to store backup of dictionary\n[ For example - /home/anmol/Documents/dictionary_bak.txt ]\n";
+        cin.getline(bak_dict_path,1000);
+        if(!locationExists(bak_dict_path))
+        {
+            cout<<"Error : Invalid Location..  Please specify an alternate location\n";
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
+void checkConfig()  // Check if the dictionary file is present and read it if possible...
+{
+    if(!locationExists(config_path))  // Shouldn't happen frequently...
+    {
+        cout<<"\nFatal Error : Unable to create configuration file \n";
+        exit(1);
+    }
+    if(!fileExists(config_path))
+    {
+        ofstream fout(config_path);   // Create a new configuration file...
+        if(fout.good())
+        {
+            fout<<"\n\t\t\tDo not modify this file!!!!\n\n#";  // Write warning message...
+            getLocations();   // Get the locations of dictionary and its backup...
+            fout<<dict_path<<"\n"<<bak_dict_path<<"\n";  // Write the locations to the config file...
+            fout.close();
+        }
+        else  // Shouldn't happen frequently...
+        {
+            cout<<"\nFatal Error : Unable to create configuration file \n";
+            exit(1);
+        }
+    }
+    ifstream fin(config_path);
+    fin.ignore (std::numeric_limits<std::streamsize>::max(),'#');  // Eat the warning message...
+    fin.getline(dict_path,1000);  // Input the location of the dictionary from the config file into "dict_path"...
+    fin.getline(bak_dict_path,1000);  //   Input the location of the backup dictionary from the config file into "bak_dict_path"...
+    fin.close();
+}
+
+void readFromFile(const char* path,map<string,string> &mapping)  // Get the contents of the dictionary from "path" and store it in memory as a mapping..
 {
     //assert(!system((string("dos2unix -q ")+filePath).c_str()));
-    string word,meaning;
-    ifstream fin(filePath);
+    if(!fileExists(path))
+    {
+        cout<<"Creating a new file at - "<<path<<"\n";
+        ofstream fout(path);  // Create a blank file at "path"..
+        fout.close();
+    }
     mapping.clear();
-    if(fin.good())  // File is opened successfully..
+    string word,meaning;
+    ifstream fin(path);
+    while(1)
     {
-        while(1)
+        getline(fin,word,'\n'); // A word is terminated by a '\n'..
+        getline(fin,meaning,'0');  // A meaning is terminated by a '0'...
+        fin.get(); // Take the remaining '\n'..
+        if(fin.eof())  // End-Of-File reached..
         {
-            getline(fin,word,'\n'); // A word is terminated by a '\n'..
-            getline(fin,meaning,'0');  // A meaning is terminated by a '0'...
-            fin.get(); // Take the remaining '\n'..
-            if(fin.eof())  // End-Of-File reached..
-            {
-                fin.clear();
-                break;
-            }
-            mapping[word]=meaning;
+            break;
         }
-        fin.close();
+        mapping[word]=meaning;
     }
-    else  // File not opened successfully..
-    {
-        string error=string("\n\nFatal error - ")+filePath;
-        perror(error.c_str());  // Output an error..
-        cout<<"Looks like the path for the dictionary you entered is invalid.\nPlease restart the program!! \n\n";
-        remove(config_path.c_str()); // Remove the configuration file..
-        exit(0);  // Close the program...
-    }
+    fin.close();
 }
 
-inline void writeToFile(const char* filePath,map<string,string> &mapping) // Save the dictionary to the file..
+void writeToFile(const char* path,map<string,string> &mapping) // Save the dictionary to the file..
 {
     ofstream fout;
-    fout.open(filePath);
+    fout.open(path);
     for(const auto& it:mapping)
     {
         fout<<it.first<<"\n"<<it.second<<"0\n";
@@ -141,13 +166,14 @@ inline string afterSpace(const string &query)  // Retrieve the part of "s" after
     return ans;
 }
 
-inline bool isReserved(const string &query)  // Check if the query recieved is a keyword ..
+inline bool isReserved(string query)  // Check if the query recieved is a keyword ..
 {
+    transform(query.begin(),query.end(),query.begin(),::tolower);
     static set<string> reserved= {"help","reset","rebuild","show","bak","showbak","loadbak","rand","refresh","remove"};
     return reserved.find(beforeSpace(query))!=reserved.end();
 }
 
-inline void showHelp() // Show the help screen..
+void showHelp() // Show the help menu..
 {
     static map<string,string> help;
     help["\n\"reset\""]="Clear screen...\n";
@@ -165,13 +191,13 @@ inline void showHelp() // Show the help screen..
     }
 }
 
-inline void rebuild()  // Empty the dictionary..
+void rebuild()  // Empty the dictionary..
 {
     dictionary.clear();
     cout<<"Dictionary cleared!!\n\n";
 }
 
-inline void removeWord(const string& word) // Remove a word-meaning pair from the dictionary..
+void removeWord(const string& word) // Remove a word-meaning pair from the dictionary..
 {
     decltype(dictionary.begin()) it;
     if((it=dictionary.find(word))!=dictionary.end())
@@ -185,14 +211,14 @@ inline void removeWord(const string& word) // Remove a word-meaning pair from th
     }
 }
 
-inline void showRand() // Show a random word-meaning pair from the dictionary..
+void showRand() // Show a random word-meaning pair from the dictionary..
 {
-    if((int)dictionary.size()<=0) // Dictionary is empty..
+    if(!dictionary.size()) // Dictionary is empty..
         return;
     decltype(dictionary.begin()) it=dictionary.begin();
     advance(it,rand()%dictionary.size());
-    cout<<"\t\t\t\""<<it->first<<"\"\n";
-    cin.get();
+    cout<<"\t\t\t\""<<it->first<<"\"\nPress Enter to show meaning..\n";
+    cin.get();  // Wait for an "enter"...
     cout<<it->second<<"\n";
 }
 
@@ -200,6 +226,7 @@ void process(const string &query)  // Run the query..
 {
     string before_space=beforeSpace(query);
     string after_space=afterSpace(query);
+    transform(before_space.begin(),before_space.end(),before_space.begin(),::tolower);
     if(before_space=="help")
     {
         showHelp();
@@ -218,17 +245,17 @@ void process(const string &query)  // Run the query..
     }
     else if(before_space=="bak")
     {
-        writeToFile(bak_path,dictionary);
+        writeToFile(bak_dict_path,dictionary);
     }
     else if(before_space=="showbak")
     {
-        readFromFile(bak_path,dictionary_bak);
+        readFromFile(bak_dict_path,dictionary_bak);
         show(dictionary_bak,atoi(after_space.c_str()));
     }
     else if(before_space=="loadbak")
     {
-        readFromFile(bak_path,dictionary);
-        writeToFile(path,dictionary);
+        readFromFile(bak_dict_path,dictionary);
+        writeToFile(dict_path,dictionary);
     }
     else if(before_space=="rand")
     {
@@ -240,14 +267,14 @@ void process(const string &query)  // Run the query..
     }
     else if(before_space=="refresh")
     {
-        readFromFile(path,dictionary);
+        readFromFile(dict_path,dictionary);
     }
 }
 
 inline string getQuery()  // Input a Word/Query..
 {
     string query="";
-    cout<<"\nEnter query.. [Type \"help\" for a list of commands] ";
+    cout<<"\nEnter query..  ";
     getline(cin,query,'\n');
     return query;
 }
@@ -273,10 +300,10 @@ void addWord(const string &word) // Add a word to the dictionary..
     if((it=dictionary.find(word))!=dictionary.end())
     {
         cout<<"'"<<it->first<<"' already exists!!...\n\n"<<it->second<<"\n\nWant to overwrite?? (y/n)  ";
-        char c;
-        cin>>c;
+        char option;
+        cin>>option;
         cin.ignore(numeric_limits<streamsize>::max(),'\n');
-        if(c=='y'||c=='Y')
+        if(option=='y'||option=='Y')
         {
             string temp=getMeaning();
             if(temp!=string("\n"))
@@ -297,7 +324,7 @@ int main()
 {
     srand(time(NULL)); // For showRand()...
     checkConfig();
-    readFromFile(path,dictionary);
+    readFromFile(dict_path,dictionary);
     while(1)
     {
         string query=getQuery();
@@ -308,5 +335,5 @@ int main()
         else
             addWord(query);
     }
-    writeToFile(path,dictionary);
+    writeToFile(dict_path,dictionary);
 }
