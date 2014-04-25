@@ -1,7 +1,6 @@
-
 A sample dictionary is included with the program. 
 
-Frequently Asked Questions -:
+<h1>Frequently Asked Questions -:</h1>
 
 1). What platforms are supported ?
   - Currently it works only on Linux. You need to have GNU C++ compiler installed to compile it.
