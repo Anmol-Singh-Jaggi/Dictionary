@@ -1,4 +1,3 @@
-
 A sample dictionary is included with the program. 
 
 **Frequently Asked Questions -:**
