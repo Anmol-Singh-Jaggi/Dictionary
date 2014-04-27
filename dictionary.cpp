@@ -171,7 +171,7 @@ inline string afterSpace(const string &query)  // Retrieve the part of "s" after
 inline bool isReserved(string query)  // Check if the query recieved is a keyword ..
 {
     transform(query.begin(),query.end(),query.begin(),::tolower);
-    static set<string> reserved= {"help","reset","rebuild","show","bak","showbak","loadbak","rand","refresh","remove"};
+    static set<string> reserved= {"help","reset","rebuild","show","bak","showbak","loadbak","test","refresh","remove"};
     return reserved.find(beforeSpace(query))!=reserved.end();
 }
 
@@ -184,7 +184,7 @@ void showHelp() // Show the help menu..
     help["\n\"bak\""]="Backup all the present entries of the dictionary...\n";
     help["\n\"showbak [no. of entries at a time]\""]="Show all the present entries of the Backup dictionary...\n";
     help["\n\"loadbak\""]="Replace the current dictionary with the most recent backup...\n";
-    help["\n\"rand\""]="Show any randomly chosen word from the dictionary...\n";
+    help["\n\"test\""]="Take a self-test by showing any randomly chosen word from the dictionary and making you guess its meaning...\n";
     help["\n\"refresh\""]="Reload the dictionary from the file...\n";
     help["\n\"remove <word>\""]="Remove a word...\n";
     for(const auto& it:help)
@@ -243,7 +243,7 @@ void process(const string &query)  // Run the query..
     }
     else if(before_space=="reset")
     {
-        system("reset");
+        assert(system("reset"));
     }
     else if(before_space=="bak")
     {
@@ -259,7 +259,7 @@ void process(const string &query)  // Run the query..
         readFromFile(bak_dict_path,dictionary);
         writeToFile(dict_path,dictionary);
     }
-    else if(before_space=="rand")
+    else if(before_space=="test")
     {
         showRand();
     }
