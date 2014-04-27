@@ -1,7 +1,6 @@
-*A sample dictionary is included with the program.* 
 
 Frequently Asked Questions -:
-=============================
+-----------------------------
 
 **1). What is it exactly ?**
   - It is a program created to help increase your vocabulary.
@@ -27,6 +26,8 @@ Frequently Asked Questions -:
   
 **7). How to exit?**
   - Just press Enter when it asks to enter a query.
-  **[ Do NOT click on the close button of the window!!! ]**
+  **[ Do NOT click on the close button of the window!!! ]**    
+  
+  *A sample dictionary is included with the program.* 
 
 
