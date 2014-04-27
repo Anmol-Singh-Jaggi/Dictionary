@@ -11,7 +11,7 @@ Frequently Asked Questions -:
   - Currently it works only on Linux. You need to have GNU C++ compiler installed to compile it.
   
 **3). How to compile it ?**
-  - g++ -std=c++11 -O2  *<Enter path here>*/dictionary.cpp -o dictionary
+  - g++ -std=c++11 -O2  *"Enter path here"*/dictionary.cpp -o dictionary
   
 **4). How to enter a word ?**  
   - When the program asks to enter a query, enter a word (without spaces, case-sensitive) to add to the dictionary...
