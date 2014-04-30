@@ -23,7 +23,12 @@ inline bool locationExists(const char* path)   // Check if the file stored at "p
     ofstream fout(path);  // Try to create a file...
     if(fout.good())  // File is writable...
     {
-        remove(path); // Remove the file which was created...
+        if(remove(path)) // Remove the file which was created...
+        {
+            perror("Fatal Error ");
+            cout<<"Unable to remove file - \""<<path<<"\"\nExiting\n"; // Permission Errors most probably...
+            exit(1);
+        }
         return true;
     }
     return false;
@@ -43,7 +48,8 @@ void getLocations()  // Input locations of dictionary and its backup from the us
         cin.getline(dict_path,1000);
         if(!locationExists(dict_path))
         {
-            cout<<"Error : Invalid Location..  Please specify an alternate location\n";
+            perror("Error ");
+            cout<<"Unable to create file at - \""<<dict_path<<"\"\nPlease Enter an alternate location\n";
         }
         else
         {
@@ -56,7 +62,8 @@ void getLocations()  // Input locations of dictionary and its backup from the us
         cin.getline(bak_dict_path,1000);
         if(!locationExists(bak_dict_path))
         {
-            cout<<"Error : Invalid Location..  Please specify an alternate location\n";
+            perror("Error ");
+            cout<<"Unable to create file at - \""<<bak_dict_path<<"\"\nPlease Enter an alternate location\n";
         }
         else
         {
@@ -69,7 +76,8 @@ void checkConfig()  // Check if the dictionary file is present and read it if po
 {
     if(!locationExists(config_path))  // Shouldn't happen frequently...
     {
-        cout<<"\nFatal Error : Unable to create configuration file \n";
+        perror("Fatal Error ");
+        cout<<"Unable to create configuration file at - \""<<config_path<<"\"\nExiting\n";
         exit(1);
     }
     if(!fileExists(config_path))
@@ -84,24 +92,44 @@ void checkConfig()  // Check if the dictionary file is present and read it if po
         }
         else  // Shouldn't happen frequently...
         {
-            cout<<"\nFatal Error : Unable to create configuration file \n";
+            perror("Fatal Error ");
+            cout<<"Unable to create configuration file at - \""<<config_path<<"\"\nExiting\n";
             exit(1);
         }
     }
     ifstream fin(config_path);
     fin.ignore (std::numeric_limits<std::streamsize>::max(),'#');  // Eat the warning message...
     fin.getline(dict_path,1000);  // Input the location of the dictionary from the config file into "dict_path"...
+    if(!locationExists(dict_path))
+    {
+        perror("Fatal Error ");
+        cout<<"The path for dictionary - \""<<dict_path<<"\" is invalid\nTry restarting the program\n";
+        remove(config_path);
+        exit(1);
+    }
     fin.getline(bak_dict_path,1000);  //   Input the location of the backup dictionary from the config file into "bak_dict_path"...
+    if(!locationExists(bak_dict_path))
+    {
+        perror("Fatal Error ");
+        cout<<"The path for dictionary backup- \""<<bak_dict_path<<"\" is invalid\nTry restarting the program\n";
+        remove(config_path);
+        exit(1);
+    }
     fin.close();
 }
 
 void readFromFile(const char* path,map<string,string> &mapping)  // Get the contents of the dictionary from "path" and store it in memory as a mapping..
 {
-    //assert(!system((string("dos2unix -q ")+filePath).c_str()));
     if(!fileExists(path))
     {
         cout<<"Creating a new file at - "<<path<<"\n";
         ofstream fout(path);  // Create a blank file at "path"..
+        if(!fout.good())
+        {
+            perror("Fatal Error ");
+            cout<<"Unable to create a new file - \""<<path<<"\"\nExiting\n";
+            exit(1);
+        }
         fout.close();
     }
     mapping.clear();
@@ -127,6 +155,12 @@ void writeToFile(const char* path,map<string,string> &mapping) // Save the dicti
 {
     ofstream fout;
     fout.open(path);
+    if(!fout.good())
+    {
+        perror("Fatal Error ");
+        cout<<"Unable to create a new file - \""<<path<<"\"\nExiting\n";
+        exit(1);
+    }
     for(const auto& it:mapping)
     {
         fout<<it.first<<"\n"<<it.second<<"$\n";
