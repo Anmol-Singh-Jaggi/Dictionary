@@ -180,8 +180,11 @@ inline void show(const map<string,string> &mapping=dictionary,int at_a_time=0)
     for(const auto& it:mapping)
     {
         cout<<i<<"). "<<it.first<<"\n\n"<<it.second<<"\n";
-        if((i%at_a_time==0)&&i!=(int)mapping.size())
-            cin.get();
+        if( (i%at_a_time == 0) && i!=(int)mapping.size() )
+        {
+            cout<<"\t\tPress <Enter> to resume..   ";
+            cin.get();  // Wait for the user...
+        }
         ++i;
     }
 }
@@ -253,9 +256,9 @@ void showRand() // Show a random word-meaning pair from the dictionary..
         return;
     decltype(dictionary.begin()) it=dictionary.begin();
     advance(it,rand()%dictionary.size());
-    cout<<"\t\t\t\""<<it->first<<"\"\nPress Enter to show meaning..\n";
+    cout<<"\t\t\t\""<<it->first<<"\"\n\t\tPress <Enter> to show meaning..  ";
     cin.get();  // Wait for an "enter"...
-    cout<<it->second<<"\n";
+    cout<<"\n\n"<<it->second<<"\n";
 }
 
 void process(const string &query)  // Run the query..
