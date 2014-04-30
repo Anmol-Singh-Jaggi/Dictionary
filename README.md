@@ -25,7 +25,7 @@ Frequently Asked Questions -:
   - Type "help" to show a list of commands when it asks for a query.
   
 **7). How to exit?**
-  - Just press Enter when it asks to enter a query.
+  - Just press *Enter* when it asks to enter a query.
   **[ Do NOT click on the close button of the window!!! ]**    
   
   *A sample dictionary is included with the program.* 
