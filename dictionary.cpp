@@ -7,10 +7,10 @@ using  namespace std;
 //*********************************************************************************************
 // Global Declarations begin...
 
-#if (defined linux || defined __linux__ || defined __linux) && defined __cplusplus //  C++ on Linux
+#if defined linux || defined __linux__ || defined __linux  // Linux
 const char* config_path=strcat(getenv("HOME"),"/dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup on Linux...
 const char* clear_screen="reset";
-#elif (defined __WIN32 || defined __WIN64) && defined __cplusplus  // C++ on Windows
+#elif defined __WIN32 || defined __WIN64  // Windows
 const char* config_path=strcat(getenv("USERPROFILE"),"\\My Documents\\dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup on Windows...
 const char* clear_screen="cls";
 #endif
@@ -291,7 +291,8 @@ void process(const string &query)  // Run the query..
     }
     else if(before_space=="clear")
     {
-        system(clear_screen);
+        int system_return_value=system(clear_screen);
+        // Add checking if system_return_value is OK or not...
     }
     else if(before_space=="bak")
     {
