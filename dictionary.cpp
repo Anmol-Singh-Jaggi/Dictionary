@@ -1,18 +1,28 @@
 #include<bits/stdc++.h>
 using  namespace std;
+#ifdef DEBUG
+#include<Debug.h>
+#endif
 
 //*********************************************************************************************
 // Global Declarations begin...
 
+#if (defined linux || defined __linux__ || defined __linux) && defined __cplusplus //  C++ on Linux
+const char* config_path=strcat(getenv("HOME"),"/dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup on Linux...
+const char* clear_screen="reset";
+#elif (defined __WIN32 || defined __WIN64) && defined __cplusplus  // C++ on Windows
+const char* config_path=strcat(getenv("USERPROFILE"),"\\My Documents\\dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup on Windows...
+const char* clear_screen="cls";
+#endif
+
 map<string,string> dictionary,dictionary_bak;  // The underlying Data Structure for dictionary...
-const char* config_path=strcat(getenv("HOME"),"/.dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup...
 char dict_path[1001];   // dict_path stores the location of the dictionary..
 char bak_dict_path[1001];   // bak_dict_path stores the location of the backup dictionary..
 
 // Global Declarations end...
 //**********************************************************************************************
 
-inline bool locationExists(const char* path)   // Check if the file stored at "path" has a valid location.. [ So that a dictionary can be created there ]
+bool locationExists(const char* path)   // Check if the file stored at "path" has a valid location.. [ So that a dictionary can be created there ]
 {
     ifstream fin(path);
     if(fin.good())  // A File is already there... so location is OK..
@@ -23,6 +33,7 @@ inline bool locationExists(const char* path)   // Check if the file stored at "p
     ofstream fout(path);  // Try to create a file...
     if(fout.good())  // File is writable...
     {
+        fout.close();
         if(remove(path)) // Remove the file which was created...
         {
             perror("Fatal Error ");
@@ -34,7 +45,7 @@ inline bool locationExists(const char* path)   // Check if the file stored at "p
     return false;
 }
 
-inline bool fileExists(const char* path)   // Check if a file at a location named "path" exists..
+bool fileExists(const char* path)   // Check if a file at a location named "path" exists..
 {
     ifstream fin(path);
     return fin.good();
@@ -208,14 +219,14 @@ inline string afterSpace(const string &query)  // Retrieve the part of "s" after
 inline bool isReserved(string query)  // Check if the query recieved is a keyword ..
 {
     transform(query.begin(),query.end(),query.begin(),::tolower);
-    static set<string> reserved= {"help","reset","rebuild","show","bak","showbak","loadbak","test","refresh","remove"};
+    static set<string> reserved= {"help","clear","rebuild","show","bak","showbak","loadbak","test","refresh","remove"};
     return reserved.find(beforeSpace(query))!=reserved.end();
 }
 
 void showHelp() // Show the help menu..
 {
     static map<string,string> help;
-    help["\n\"reset\""]="Clear screen...\n";
+    help["\n\"clear\""]="Clear screen...\n";
     help["\n\"rebuild\""]="Delete all the present entries of the dictionary...\n";
     help["\n\"show [no. of entries at a time]\""]="Show all the present entries of the dictionary...\n";
     help["\n\"bak\""]="Backup all the present entries of the dictionary...\n";
@@ -278,9 +289,9 @@ void process(const string &query)  // Run the query..
     {
         show(dictionary,atoi(after_space.c_str()));
     }
-    else if(before_space=="reset")
+    else if(before_space=="clear")
     {
-        assert(system("reset"));
+        system(clear_screen);
     }
     else if(before_space=="bak")
     {
@@ -375,4 +386,5 @@ int main()
             addWord(query);
     }
     writeToFile(dict_path,dictionary);
+
 }
