@@ -12,10 +12,10 @@ Frequently Asked Questions -:
   - Windows [ Tested on Windows 7 ]
   
 **3). How to compile it ?**
-  - Compile using options *** -std=c++11 -O2 ***  [ You need to have a compiler with C++ 11 installed ]
+  - Compile using options **-std=c++11 -O2**  [ You need to have a compiler with C++ 11 installed ]  
     For Example -:  
-  - On Linux, *g++ -std=c++11 -O2  *"Enter path here"*/dictionary.cpp -o dictionary*
-  - On Windows, *C:\"Program Files (x86)"\CodeBlocks\MinGW\bin\mingw32-g++.exe -std=c++11 -O2 dictionary.cpp -o dictionary.exe*
+  - On Linux, **g++ -std=c++11 -O2  *"Enter path here"*/dictionary.cpp -o dictionary**
+  - On Windows, **C:\"Program Files (x86)"\CodeBlocks\MinGW\bin\mingw32-g++.exe -std=c++11 -O2 dictionary.cpp -o dictionary.exe**
   
 **4). How to enter a word ?**  
   - When the program asks to enter a query, enter a word (without spaces, case-sensitive) to add to the dictionary...
