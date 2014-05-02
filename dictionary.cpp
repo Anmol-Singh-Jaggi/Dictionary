@@ -22,7 +22,7 @@ char bak_dict_path[1001];   // bak_dict_path stores the location of the backup d
 // Global Declarations end...
 //**********************************************************************************************
 
-bool locationExists(const char* path)   // Check if the file stored at "path" has a valid location.. [ So that a dictionary can be created there ]
+bool locationExists(const char* path)   // Check if the file stored at "path" has a valid location.. [ So that a dictionary file can be created there ]
 {
     ifstream fin(path);
     if(fin.good())  // A File is already there... so location is OK..
@@ -30,6 +30,7 @@ bool locationExists(const char* path)   // Check if the file stored at "path" ha
         return true;
     }
     fin.close();
+
     ofstream fout(path);  // Try to create a file...
     if(fout.good())  // File is writable...
     {
@@ -85,7 +86,7 @@ void getLocations()  // Input locations of dictionary and its backup from the us
 
 void checkConfig()  // Check if the dictionary file is present and read it if possible...
 {
-    if(!locationExists(config_path))  // Shouldn't happen frequently...
+    if(!locationExists(config_path))
     {
         perror("Fatal Error ");
         cout<<"Unable to create configuration file at - \""<<config_path<<"\"\nExiting\n";
@@ -99,9 +100,8 @@ void checkConfig()  // Check if the dictionary file is present and read it if po
             fout<<"\n\t\t\tDo not modify this file!!!!\n\n#";  // Write warning message...
             getLocations();   // Get the locations of dictionary and its backup...
             fout<<dict_path<<"\n"<<bak_dict_path<<"\n";  // Write the locations to the config file...
-            fout.close();
         }
-        else  // Shouldn't happen frequently...
+        else
         {
             perror("Fatal Error ");
             cout<<"Unable to create configuration file at - \""<<config_path<<"\"\nExiting\n";
@@ -115,7 +115,7 @@ void checkConfig()  // Check if the dictionary file is present and read it if po
     {
         perror("Fatal Error ");
         cout<<"The path for dictionary - \""<<dict_path<<"\" is invalid\nTry restarting the program\n";
-        remove(config_path);
+        remove(config_path);  // Remove the configuration file so that getLocations() gets invoked again...
         exit(1);
     }
     fin.getline(bak_dict_path,1000);  //   Input the location of the backup dictionary from the config file into "bak_dict_path"...
@@ -123,18 +123,18 @@ void checkConfig()  // Check if the dictionary file is present and read it if po
     {
         perror("Fatal Error ");
         cout<<"The path for dictionary backup- \""<<bak_dict_path<<"\" is invalid\nTry restarting the program\n";
-        remove(config_path);
+        remove(config_path);  // Remove the configuration file so that getLocations() gets invoked again...
         exit(1);
     }
     fin.close();
 }
 
-void readFromFile(const char* path,map<string,string> &mapping)  // Get the contents of the dictionary from "path" and store it in memory as a mapping..
+void readFromFile(const char* path,map<string,string> &mapping)  // Get the contents of the dictionary from "path" and store it in "mapping"..
 {
-    if(!fileExists(path))
+    if(!fileExists(path))  //  File is not present at "path"...
     {
         cout<<"Creating a new file at - "<<path<<"\n";
-        ofstream fout(path);  // Create a blank file at "path"..
+        ofstream fout(path);  // Create a blank file at "path" to store the dictionary/dictionary_bak..
         if(!fout.good())
         {
             perror("Fatal Error ");
@@ -166,7 +166,7 @@ void writeToFile(const char* path,map<string,string> &mapping) // Save the dicti
 {
     ofstream fout;
     fout.open(path);
-    if(!fout.good())
+    if(!fout.good())  // Unable to open file for writing...
     {
         perror("Fatal Error ");
         cout<<"Unable to create a new file - \""<<path<<"\"\nExiting\n";
