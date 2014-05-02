@@ -23,14 +23,14 @@ char bak_dict_path[1001];   // bak_dict_path stores the location of the backup d
 //**********************************************************************************************
 
 
-// Check if a file at a location named "path" exists..
+// Check if a file having the address "path" exists..
 bool fileExists(const char* path)
 {
     ifstream fin(path);
     return fin.good();
 }
 
-// Check if "path" is a valid location..
+// Check if the location of a file having the address "path" is a valid location..
 bool locationExists(const char* path)
 {
     if(fileExists(path))  // A file already exists there.. so OK..
@@ -120,7 +120,11 @@ void checkConfig()
     {
         perror("Fatal Error ");
         cout<<"The path for dictionary - \""<<dict_path<<"\" is invalid\nTry restarting the program\n";
-        remove(config_path);  // Remove the configuration file so that getLocations() gets invoked again...
+        if(remove(config_path))  // Remove the configuration file so that getLocations() gets invoked again...
+        {
+            perror("Fatal Error ");
+            cout<<"Unable to remove file - \""<<config_path<<"\"\nExiting\n"; // Permission Errors most probably...
+        }
         exit(1);
     }
     fin.getline(bak_dict_path,1000);  //   Input the location of the backup dictionary from the config file into "bak_dict_path"...
@@ -128,7 +132,11 @@ void checkConfig()
     {
         perror("Fatal Error ");
         cout<<"The path for dictionary backup- \""<<bak_dict_path<<"\" is invalid\nTry restarting the program\n";
-        remove(config_path);  // Remove the configuration file so that getLocations() gets invoked again...
+        if(remove(config_path))  // Remove the configuration file so that getLocations() gets invoked again...
+        {
+            perror("Fatal Error ");
+            cout<<"Unable to remove file - \""<<config_path<<"\"\nExiting\n"; // Permission Errors most probably...
+        }
         exit(1);
     }
     fin.close();
@@ -306,8 +314,8 @@ void process(const string &query)
     }
     else if(before_space=="clear")
     {
-        int system_return_value=system(clear_screen);
-        // Add checking if system_return_value is OK or not...
+        system(clear_screen);
+        // The compiler keeps warning the value returned here is unused, but I do not know how to use it !!!
     }
     else if(before_space=="bak")
     {
