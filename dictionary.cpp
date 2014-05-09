@@ -1,198 +1,157 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<fstream>
+#include<sstream>
+#include<cstdio>
+#include<cstdlib>
+#include<cstring>
+#include<string>
+#include<map>
+#include<set>
+#include<algorithm>
+#include<limits>
 using  namespace std;
-#ifdef DEBUG
-#include<Debug.h>
-#endif
-
-//*********************************************************************************************
-// Global Declarations begin...
 
 #if defined linux || defined __linux__ || defined __linux  // Linux
-const char* config_path=strcat(getenv("HOME"),"/.dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup on Linux...
-const char* clear_screen="reset";
+#define PLATFORM_CONFIG_PATH    getenv("HOME")+string("/.dict_config.txt")
+#define PLATFORM_RESET_COMMAND  "reset"
+
 #elif defined __WIN32 || defined __WIN64  // Windows
-const char* config_path=strcat(getenv("USERPROFILE"),"\\My Documents\\dict_config.txt");  // Path to store configuration File which will contain location of dictionary and its backup on Windows...
-const char* clear_screen="cls";
+#define PLATFORM_CONFIG_PATH    getenv("USERPROFILE")+string("\\My Documents\\dict_config.txt")
+#define PLATFORM_RESET_COMMAND  "cls"
+
+#else
+#error "Untested platform"
 #endif
 
-map<string,string> dictionary,dictionary_bak;  // The underlying Data Structure for dictionary...
-char dict_path[1001];   // dict_path stores the location of the dictionary..
-char bak_dict_path[1001];   // bak_dict_path stores the location of the backup dictionary..
+/**********************************************************************************************
+ * Global Declarations begin */
 
-// Global Declarations end...
-//**********************************************************************************************
+const string config_path=PLATFORM_CONFIG_PATH;  // Path to store configuration File which will contain location of dictionary and its backup
+const string clear_screen=PLATFORM_RESET_COMMAND;  // OS-Specific "clear-screen" command
+
+map<string,string> dictionary,dictionary_bak;  // The underlying Data Structure for dictionary
+string dict_path;   // dict_path stores the location of the dictionary
+string bak_dict_path;   // bak_dict_path stores the location of the backup dictionary
+
+/***********************************************************************************************
+ * Global Declarations end */
 
 
-// Check if a file having the address "path" exists..
-bool fileExists(const char* path)
+// Check if a file having the address "path" exists and is readable
+bool isFileReadable(const string& path)
 {
     ifstream fin(path);
     return fin.good();
 }
 
-// Check if the location of a file having the address "path" is a valid location..
-bool locationExists(const char* path)
-{
-    if(fileExists(path))  // A file already exists there.. so OK..
-        return true;
 
-    ofstream fout(path);  // Try to create a file with write permissions...
-    if(fout.good())  // File is writable...
+// Check if the location of a file having the address "path" is a writable location
+bool isFileWritable(const string& path,const bool& file_already_present)
+{
+    ofstream fout(path);  // Try to create a dummy file with write permissions
+    if(fout.good())  // Dummy file is created successfully in write mode
     {
-        fout.close();
-        if(remove(path)) // Remove the file which was created...
+        if(!file_already_present)
         {
-            perror("Fatal Error ");
-            cout<<"Unable to remove file - \""<<path<<"\"\nExiting\n"; // Permission Errors most probably...
-            exit(1);
+            fout.close();  // Close the dummy file so that it can be removed
+            if(remove(path.c_str())) // Remove the dummy file
+            {
+                cerr<<"Could not remove "<<path<<endl;
+                return false;  // Unable to remove file successfully
+            }
         }
-        return true;
+        return true;  // Everything OK!
     }
-    return false;
+    return false;  // Something gone wrong
 }
 
-// Input locations of dictionary and its backup from the user...
+
+// Input locations of dictionary and its backup from the user
 void getLocations()
 {
-    while(1)
-    {
-        cout<<"\nEnter the path to store dictionary\n[ For example - /home/anmol/Documents/dictionary.txt ]\n";
-        cin.getline(dict_path,1000);
-        if(!locationExists(dict_path))
-        {
-            perror("Error ");
-            cout<<"Unable to create file at - \""<<dict_path<<"\"\nPlease Enter an alternate location\n";
-        }
-        else
-        {
-            break;
-        }
-    }
+    cout<<"\nEnter the path to store dictionary\n";
+    getline(cin,dict_path);
 
-    while(1)
-    {
-        cout<<"\nEnter the path to store backup of dictionary\n[ For example - /home/anmol/Documents/dictionary_bak.txt ]\n";
-        cin.getline(bak_dict_path,1000);
-        if(!locationExists(bak_dict_path))
-        {
-            perror("Error ");
-            cout<<"Unable to create file at - \""<<bak_dict_path<<"\"\nPlease Enter an alternate location\n";
-        }
-        else
-        {
-            break;
-        }
-    }
+    cout<<"\nEnter the path to store backup of dictionary\n";
+    getline(cin,bak_dict_path);
 }
 
-// Check if the configuration file is present or not
-// If it is present, then read it and check if the path to the dictionary file is valid or not...
+
+/* Check if the configuration file is present or not.
+ * If it is present, then read the locations of dictionary and its backup,
+ * else, create it.
+ */
 void checkConfig()
 {
-    if(!locationExists(config_path))
+    if(!isFileReadable(config_path))  // Config file does not exist or is not readable
     {
-        perror("Fatal Error ");
-        cout<<"Unable to create configuration file at - \""<<config_path<<"\"\nExiting\n";
-        exit(1);
-    }
-
-    if(!fileExists(config_path))
-    {
-        ofstream fout(config_path);   // Create a new configuration file...
-        if(fout.good())
+        // Try to make a fresh config file
+        if(isFileWritable(config_path,false))
         {
-            fout<<"\n\t\t\tDo not modify this file!!!!\n\n#";  // Write warning message...
-            getLocations();   // Get the locations of dictionary and its backup...
-            fout<<dict_path<<"\n"<<bak_dict_path<<"\n";  // Write the locations to the config file...
+            ofstream fout(config_path);   // Create a new configuration file
+            fout<<"\n\t\t\tDo not modify this file!!!!\n\n#";  // Write warning message
+            getLocations();   // Get the locations of dictionary and its backup
+            fout<<dict_path<<"\n"<<bak_dict_path<<"\n";  // Write the locations to the config file
         }
-        else
+        else  // Can not write to the location "config_path"
         {
-            perror("Fatal Error ");
-            cout<<"Unable to create configuration file at - \""<<config_path<<"\"\nExiting\n";
-            exit(1);
+            throw "Creating \""+config_path+"\"";
         }
     }
 
     ifstream fin(config_path);
-    fin.ignore (std::numeric_limits<std::streamsize>::max(),'#');  // Eat the warning message...
-    fin.getline(dict_path,1000);  // Input the location of the dictionary from the config file into "dict_path"...
-    if(!locationExists(dict_path))
-    {
-        perror("Fatal Error ");
-        cout<<"The path for dictionary - \""<<dict_path<<"\" is invalid\nTry restarting the program\n";
-        if(remove(config_path))  // Remove the configuration file so that getLocations() gets invoked again...
-        {
-            perror("Fatal Error ");
-            cout<<"Unable to remove file - \""<<config_path<<"\"\nExiting\n"; // Permission Errors most probably...
-        }
-        exit(1);
-    }
-    fin.getline(bak_dict_path,1000);  //   Input the location of the backup dictionary from the config file into "bak_dict_path"...
-    if(!locationExists(bak_dict_path))
-    {
-        perror("Fatal Error ");
-        cout<<"The path for dictionary backup- \""<<bak_dict_path<<"\" is invalid\nTry restarting the program\n";
-        if(remove(config_path))  // Remove the configuration file so that getLocations() gets invoked again...
-        {
-            perror("Fatal Error ");
-            cout<<"Unable to remove file - \""<<config_path<<"\"\nExiting\n"; // Permission Errors most probably...
-        }
-        exit(1);
-    }
-    fin.close();
+    fin.ignore(numeric_limits<streamsize>::max(),'#');  // Eat the warning message
+    getline(fin,dict_path);  // Input the location of the dictionary from the config file into "dict_path"
+    getline(fin,bak_dict_path);  //   Input the location of the backup dictionary from the config file into "bak_dict_path"
 }
 
-// Get the contents of the dictionary from "path" and store it in "mapping"..
-void readFromFile(const char* path,map<string,string> &mapping)
+
+// Get the contents of the dictionary from "path" and store it in "mapping"
+void readFromFile(const string& path,map<string,string> &mapping)
 {
-    if(!fileExists(path))  //  File is not present at "path"...
+    if(!isFileReadable(path))  //  File is not present at "path"
     {
-        cout<<"Creating a new file at - "<<path<<"\n";
-        ofstream fout(path);  // Create a blank file at "path" to store the dictionary/dictionary_bak..
-        if(!fout.good())
+        // Try to make a new file
+        if(isFileWritable(path,false))
         {
-            perror("Fatal Error ");
-            cout<<"Unable to create a new file - \""<<path<<"\"\nExiting\n";
-            exit(1);
+            ofstream fout(path);  // Create a blank file
         }
-        fout.close();
+        else
+        {
+            throw "Creating \""+path+"\"";
+        }
     }
 
     mapping.clear();
     string word,meaning;
     ifstream fin(path);
-    while(1)
+    while(getline(fin, word))
     {
-        getline(fin,word,'\n'); // A word is terminated by a '\n'..
-        if(fin.eof())  // End-Of-File reached..
-            break;
         if(word.empty())
             continue;
-        getline(fin,meaning,'$');  // A meaning is terminated by a '$'...
-        if(meaning.empty())
-            continue;
-        fin.get(); // Take the remaining '\n'..
-        mapping[word]=meaning;
+        if (getline(fin,meaning,'$') && (!meaning.empty()))   // A meaning is terminated by a '$'
+        {
+            mapping.emplace(make_pair(word, meaning));
+        }
+        fin.get(); // Take the remaining '\n'
     }
+
 }
 
 // Save the dictionary to the file..
-void writeToFile(const char* path,map<string,string> &mapping)
+void writeToFile(const string& path,map<string,string> &mapping)
 {
-    ofstream fout;
-    fout.open(path);
-    if(!fout.good())  // Unable to open file for writing...
+    if(!isFileWritable(path,true))
     {
-        perror("Fatal Error ");
-        cout<<"Unable to create a new file - \""<<path<<"\"\nExiting\n";
-        exit(1);
+        throw "Writing to \""+path+"\"";
     }
 
+    ofstream fout(path);
     for(const auto& it:mapping)
     {
         fout<<it.first<<"\n"<<it.second<<"$\n";
         // Word terminated by a '\n'..
-        // Meaning terminated by a "0\n"..
+        // Meaning terminated by a "$\n"..
     }
 }
 
@@ -216,25 +175,25 @@ inline void show(const map<string,string> &mapping=dictionary,int at_a_time=0)
 }
 
 // Retrieve the part of "s" before a " " is encountered..
-inline string beforeSpace(const string &query)
+string beforeSpace(const string &query)
 {
     stringstream ss(query);
-    string ans="";
+    string ans;
     ss>>ans;
     return ans;
 }
 
 // Retrieve the part of "s" after a " " is encountered..
-inline string afterSpace(const string &query)
+string afterSpace(const string &query)
 {
     stringstream ss(query);
-    string ans="";
+    string ans;
     ss>>ans>>ans;
     return ans;
 }
 
 // Check if the query recieved is a keyword ..
-inline bool isReserved(string query)
+bool isReserved(string query)
 {
     transform(query.begin(),query.end(),query.begin(),::tolower);
     static set<string> reserved= {"help","clear","rebuild","show","bak","showbak","loadbak","test","refresh","remove"};
@@ -314,7 +273,7 @@ void process(const string &query)
     }
     else if(before_space=="clear")
     {
-        system(clear_screen);
+        system(clear_screen.c_str());
         // The compiler keeps warning the value returned here is unused, but I do not know how to use it !!!
     }
     else if(before_space=="bak")
@@ -346,18 +305,18 @@ void process(const string &query)
 }
 
 // Input a Word/Query..
-inline string getQuery()
+string getQuery()
 {
-    string query="";
+    string query;
     cout<<"\nEnter query..  ";
     getline(cin,query,'\n');
     return query;
 }
 
 // Input the meaning of a word..
-inline string getMeaning()
+string getMeaning()
 {
-    string meaning="";
+    string meaning;
     cout<<"\nEnter meaning..  ";
     char c;
     while(1)
@@ -383,14 +342,14 @@ void addWord(const string &word)
         if(option=='y'||option=='Y')
         {
             string temp=getMeaning();
-            if(temp!=string("\n"))
+            if(temp!="\n")
                 it->second=temp;
         }
     }
     else
     {
         string temp=getMeaning();
-        if(temp!=string("\n"))
+        if(temp!="\n")
             dictionary[word]=temp;
     }
 }
@@ -400,18 +359,27 @@ void addWord(const string &word)
 int main()
 {
     srand(time(NULL)); // For showRand()...
-    checkConfig();
-    readFromFile(dict_path,dictionary);
-    while(1)
+    try
     {
-        string query=getQuery();
-        if(query=="") // Exit if the query entered is blank...
-            break;
-        else if(isReserved(query))
-            process(query);
-        else
-            addWord(query);
+        checkConfig();
+        readFromFile(dict_path,dictionary);
+        while(1)
+        {
+            string query=getQuery();
+            if(query.empty()) // Exit if the query entered is blank...
+                break;
+            else if(isReserved(query))
+                process(query);
+            else
+                addWord(query);
+        }
+        writeToFile(dict_path,dictionary);
     }
-    writeToFile(dict_path,dictionary);
+    catch(const string& error)
+    {
+        cerr<<"Fatal error while "<<error<<" - "<<strerror(errno)<<"\n\n";
+        cerr<<"Exiting\n"<<endl;
+        return -1;
+    }
 
 }
