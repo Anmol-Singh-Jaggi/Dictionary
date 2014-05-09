@@ -155,7 +155,7 @@ void writeToFile(const string& path,map<string,string> &mapping)
     }
 }
 
-inline void show(const map<string,string> &mapping=dictionary,int at_a_time=0)
+void show(const map<string,string> &mapping=dictionary,int at_a_time=0)
 {
     // Show the contents of "mapping" with "at_a_time" word-meaning pairs displayed at a time...
     int i=1;
