@@ -274,7 +274,6 @@ void process(const string &query)
     else if(before_space=="clear")
     {
         system(clear_screen.c_str());
-        // The compiler keeps warning the value returned here is unused, but I do not know how to use it !!!
     }
     else if(before_space=="bak")
     {
