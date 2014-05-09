@@ -17,18 +17,21 @@ Frequently Asked Questions -:
   - On Linux, **g++ -std=c++11 -O2  *"Enter path here"*/dictionary.cpp -o dictionary**
   - On Windows, **C:\"Program Files (x86)"\CodeBlocks\MinGW\bin\mingw32-g++.exe -std=c++11 -O2 dictionary.cpp -o dictionary.exe**
   
-**4). How to enter a word ?**  
+**4). How to enter location of files?**
+  - Enter *folder name,filename* .  For example - */home/anmol/Documents/mydict.txt*
+  
+**5). How to enter a word ?**  
   - When the program asks to enter a query, enter a word (without spaces, case-sensitive) to add to the dictionary...
    
-**5). How to enter a meaning?**
+**6). How to enter a meaning?**
   - You can write a "multiline" meaning of as much as lines as you want.
     When you're done writing, just press Enter twice.
     [ If the entered meaning is empty, the word will be discarded ]
 
-**6). What functionality/commands are supported ?**
+**7). What functionality/commands are supported ?**
   - Type "help" to show a list of commands when it asks for a query.
   
-**7). How to exit?**
+**8). How to exit?**
   - Just press *Enter* when it asks to enter a query.
   **[ Do NOT click on the close button of the window!!! ]**    
   

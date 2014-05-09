@@ -375,9 +375,10 @@ int main()
         }
         writeToFile(dict_path,dictionary);
     }
-    catch(const string& error)
+    catch(const string& error_msg)
     {
-        cerr<<"Fatal error while "<<error<<" - "<<strerror(errno)<<"\n\n";
+        cerr<<"Fatal error while "<<error_msg<<" - "<<strerror(errno)<<"\n";
+        cout<<"In case this error message persists, try deleting \""<<config_path<<"\" and resarting the programn\n\n";
         cerr<<"Exiting\n"<<endl;
         return -1;
     }
