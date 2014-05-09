@@ -37,7 +37,7 @@ string bak_dict_path;   // bak_dict_path stores the location of the backup dicti
  * Global Declarations end */
 
 
-// Check if a file having the address "path" exists and is readable
+// Check if the address "path" exists and is readable
 bool isFileReadable(const string& path)
 {
     ifstream fin(path);
@@ -45,7 +45,7 @@ bool isFileReadable(const string& path)
 }
 
 
-// Check if the location of a file having the address "path" is a writable location
+// Check if the address "path" exists and is writable
 bool isFileWritable(const string& path,const bool& file_already_present)
 {
     ofstream fout(path);  // Try to create a dummy file with write permissions
