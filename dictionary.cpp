@@ -131,7 +131,7 @@ void readFromFile(const string& path,map<string,string> &mapping)
             continue;
         if (getline(fin,meaning,'$') && (!meaning.empty()))   // A meaning is terminated by a '$'
         {
-            mapping.emplace(make_pair(word, meaning));
+            mapping.insert(make_pair(word, meaning));
         }
         fin.get(); // Take the remaining '\n'
     }
