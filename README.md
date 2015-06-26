@@ -12,9 +12,9 @@ Frequently Asked Questions -:
   - Windows [ Tested on Windows 7 ]
   
 **3). How to compile it ?**
-	- This program was has been tested only on GCC 4.9.2. But it should work on other C++ compilers too.
-	- This program requires the [Boost][1] [Filesystem][2] library.
-	- Check you compiler and the Boost documentation for the compilation instructions.
+  - This program was has been tested only on GCC 4.9.2. But it should work on other C++ compilers too.
+  - This program requires the [Boost][1] [Filesystem][2] library.
+  - Check you compiler and the Boost documentation for the compilation instructions.
   
 **4). How to enter a word ?**  
   - A *word* can be a multi-word string, unlike what its name suggests.
