@@ -12,29 +12,28 @@ Frequently Asked Questions -:
   - Windows [ Tested on Windows 7 ]
   
 **3). How to compile it ?**
-  - Compile using options **-std=c++11 -O2** [ You need to have a compiler with C++ 11 installed ]  
-    For Example -:  
-  - On Linux, **g++ -std=c++11 -O2  *"Enter path here"*/dictionary.cpp -o dictionary**
-  - On Windows, **C:\"Program Files (x86)"\CodeBlocks\MinGW\bin\mingw32-g++.exe -std=c++11 -O2 dictionary.cpp -o dictionary.exe**
+	- This program was has been tested only on GCC 4.9.2. But it should work on other C++ compilers too.
+	- This program requires the [Boost][1] [Filesystem][2] library.
+	- Check you compiler and the Boost documentation for the compilation instructions.
   
-**4). How to enter location of files?**
-  - Enter *folder name,filename* .  For example - */home/anmol/Documents/mydict.txt*
-  
-**5). How to enter a word ?**  
-  - When the program asks to enter a query, enter a word (without spaces, case-sensitive) to add to the dictionary...
+**4). How to enter a word ?**  
+  - A *word* can be a multi-word string, unlike what its name suggests.
+	- When the program asks to enter a query, enter a word to add to the dictionary.
    
 **6). How to enter a meaning?**
-  - You can write a "multiline" meaning of as much as lines as you want.
-    When you're done writing, just press Enter twice.
-    [ If the entered meaning is empty, the word will be discarded ]
+  - A *meaning* can be a multi-line string.
+	- When you're done writing, just press *Enter* twice.
+  - If the entered meaning is empty, the word will be discarded.
 
 **7). What functionality/commands are supported ?**
   - Type "help" to show a list of commands when it asks for a query.
   
 **8). How to exit?**
-  - Just press *Enter* when it asks to enter a query.
-  **[ Do NOT click on the close button of the window!!! ]**    
+  - Just type *exit* when it asks to enter a query.
+	- Do not click on the close button of the console window, or else all the data in the dictionary file will be lost.
   
   *A sample dictionary is included with the program.* 
 
 
+[1]:http://www.boost.org
+[2]:http://www.boost.org/doc/libs/1_57_0/libs/filesystem/doc/index.htm
