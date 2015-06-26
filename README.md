@@ -22,14 +22,14 @@ Frequently Asked Questions -:
    
 **6). How to enter a meaning?**
   - A *meaning* can be a multi-line string.
-  - When you're done writing, just press *Enter* twice.
+  - When you're done writing, just press "Enter" twice.
   - If the entered meaning is empty, the word will be discarded.
 
 **7). What functionality/commands are supported ?**
   - Type "help" to show a list of commands when it asks for a query.
   
 **8). How to exit?**
-  - Just type *exit* when it asks to enter a query.
+  - Just type "exit" when it asks to enter a query.
   - Do not click on the close button of the console window, or else all the data in the dictionary file will be lost.
 
 
