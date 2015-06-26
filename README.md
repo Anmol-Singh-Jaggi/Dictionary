@@ -18,11 +18,11 @@ Frequently Asked Questions -:
   
 **4). How to enter a word ?**  
   - A *word* can be a multi-word string, unlike what its name suggests.
-	- When the program asks to enter a query, enter a word to add to the dictionary.
+  - When the program asks to enter a query, enter a word to add to the dictionary.
    
 **6). How to enter a meaning?**
   - A *meaning* can be a multi-line string.
-	- When you're done writing, just press *Enter* twice.
+  - When you're done writing, just press *Enter* twice.
   - If the entered meaning is empty, the word will be discarded.
 
 **7). What functionality/commands are supported ?**
@@ -30,7 +30,7 @@ Frequently Asked Questions -:
   
 **8). How to exit?**
   - Just type *exit* when it asks to enter a query.
-	- Do not click on the close button of the console window, or else all the data in the dictionary file will be lost.
+  - Do not click on the close button of the console window, or else all the data in the dictionary file will be lost.
   
   *A sample dictionary is included with the program.* 
 
