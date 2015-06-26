@@ -32,7 +32,7 @@ Frequently Asked Questions -:
   - Just type *exit* when it asks to enter a query.
   - Do not click on the close button of the console window, or else all the data in the dictionary file will be lost.
   
-  *A sample dictionary is included with the program.* 
+  **A sample dictionary is included with the program.** 
 
 
 [1]:http://www.boost.org
