@@ -10,18 +10,19 @@
 #include<algorithm>
 #include<limits>
 #include<ctime>
+#include<exception>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
-#include <boost/filesystem.hpp>
+#include "boost/filesystem.hpp"
 
 using  namespace std;
 using namespace boost::filesystem;
 
-#if BOOST_OS_LINUX // Linux
+#if BOOST_OS_LINUX
 #define PLATFORM_CONFIG_PATH    (getenv("HOME")+string("/.dict_config.txt"))
 #define PLATFORM_RESET_COMMAND  "reset"
 
-#elif BOOST_OS_WINDOWS // Windows
+#elif BOOST_OS_WINDOWS
 #define PLATFORM_CONFIG_PATH    (getenv("USERPROFILE")+string("\\My Documents\\dict_config.txt"))
 #define PLATFORM_RESET_COMMAND  "cls"
 
@@ -67,10 +68,10 @@ class Dictionary
 	void Clear();
 
 	// Display the contents of the dictionary "num" pairs at a time
-	void Display( size_t num = 0 );
+	void Display( size_t num = 0 ) const;
 
 	// Retrieve the first word of the query string
-	string FirstWord( const string& query );
+	string FirstWord( const string& query ) const;
 
 	// Helper for the constructor
 	// Initialize helpMap
@@ -85,13 +86,13 @@ class Dictionary
 	void ReadFromDictFile();
 
 	// Input the meaning of a word
-	string ReadMeaning();
+	string ReadMeaning() const;
 
 	// Remove a word-meaning pair from the dictionary
 	void Remove( const string& word );
 
 	// Retrieve the second word of the query string
-	string SecondWord( const string& query );
+	string SecondWord( const string& query ) const;
 
 	// Helper for the constructor
 	// Make sure that the configuration file is existing.
@@ -103,14 +104,14 @@ class Dictionary
 	void SetupDictFile();
 
 	// Show the help menu
-	void ShowHelp();
+	void ShowHelp() const;
 
 	// Show a random pair from the dictionary
-	void TakeTest();
+	void TakeTest() const;
 
 	// Utility function
 	// Convert any type to its string representation
-	template<typename T> string ToString( const T& obj );
+	template<typename T> string ToString( const T& obj ) const;
 
 public:
 
@@ -131,10 +132,10 @@ public:
 	void Insert( const string& word );
 
 	// Check if the query recieved is a keyword
-	bool IsReserved( string query );
+	bool IsReserved( string query ) const;
 
 	// Input a query
-	string ReadQuery();
+	string ReadQuery() const;
 };
 
 
@@ -148,7 +149,7 @@ void Dictionary::Clear()
 	cout << "Dictionary cleared!!\n\n";
 }
 
-void Dictionary::Display( size_t num )
+void Dictionary::Display( size_t num ) const
 {
 	cout << "\t\t\t" << "Number of entries = " << dict.size() << "\n";
 
@@ -172,7 +173,7 @@ void Dictionary::Display( size_t num )
 	}
 }
 
-string Dictionary::FirstWord( const string& query )
+string Dictionary::FirstWord( const string& query ) const
 {
 	stringstream ss( query );
 	string ans;
@@ -198,7 +199,7 @@ void Dictionary::ReadDictFilePathFromConfigFile()
 	if ( !fin )
 	{
 		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in reading '" + configFilePath.string() + "' : " + strerror( errno );
-		throw errorMsg;
+		throw runtime_error( errorMsg );
 	}
 
 	cout << "Trying to read the path of the dictionary file from the config file." << endl;
@@ -218,7 +219,7 @@ void Dictionary::ReadFromDictFile()
 	if ( !dictFile )
 	{
 		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in opening '" + dictFilePath.string() + "' : " + strerror( errno );
-		throw errorMsg;
+		throw runtime_error( errorMsg );
 	}
 
 	cout << "Reading the contents of the dictionary from the dictionary file." << endl;
@@ -238,13 +239,13 @@ void Dictionary::ReadFromDictFile()
 		if ( !dictFile )
 		{
 			const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in reading '" + dictFilePath.string() + "' : The dictionary is in an inconsistent state";
-			throw errorMsg;
+			throw runtime_error( errorMsg );
 		}
 	}
 	dictFile.close();
 }
 
-string Dictionary::ReadMeaning()
+string Dictionary::ReadMeaning() const
 {
 	string meaning;
 	cout << "\nEnter meaning -:\n";
@@ -269,8 +270,8 @@ string Dictionary::ReadMeaning()
 
 void Dictionary::Remove( const string& word )
 {
-	decltype( dict.begin() ) it;
-	if ( ( it = dict.find( word ) ) != dict.end() )
+	auto it = dict.find( word );
+	if ( it != dict.end() )
 	{
 		dict.erase( it );
 		cout << "'" << word << "' erased.\n";
@@ -282,7 +283,7 @@ void Dictionary::Remove( const string& word )
 }
 
 
-string Dictionary::SecondWord( const string& query )
+string Dictionary::SecondWord( const string& query ) const
 {
 	stringstream ss( query );
 	string ans;
@@ -315,7 +316,7 @@ void Dictionary::SetupConfigFile()
 		catch ( const filesystem_error& ex )
 		{
 			const string errorMsg = "Line " + ToString( __LINE__ ) + " : Dictionary path '" + dictFilePath.string() + "' not valid : " + ex.what();
-			throw errorMsg;
+			throw runtime_error( errorMsg );
 		}
 
 		// Write the dictionary file path in the config file.
@@ -324,7 +325,7 @@ void Dictionary::SetupConfigFile()
 	else
 	{
 		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in creating '" + configFilePath.string() + "' : " + strerror( errno );
-		throw errorMsg;
+		throw runtime_error( errorMsg );
 	}
 
 	cout << "Path to the dictionary file successfully saved into the configuration file.\n";
@@ -340,15 +341,16 @@ void Dictionary::SetupDictFile()
 	// If not successful in creating a new dictionary file
 	if ( !dictFile )
 	{
+		remove( configFilePath );
 		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in creating '" + dictFilePath.string() + "' : " + strerror( errno );
-		throw errorMsg;
+		throw runtime_error( errorMsg );
 	}
 
 	dictFile.close();
 	cout << "New dictionary file created successfully!!" << endl;
 }
 
-void Dictionary::ShowHelp()
+void Dictionary::ShowHelp() const
 {
 	cout << "\n";
 	for ( const auto& it : helpMap )
@@ -358,14 +360,14 @@ void Dictionary::ShowHelp()
 	cout << endl;
 }
 
-void Dictionary::TakeTest()
+void Dictionary::TakeTest() const
 {
-	if ( !dict.size() ) // Dictionary is empty
+	if ( dict.empty() ) // Dictionary is empty
 	{
 		return;
 	}
 
-	decltype( dict.begin() ) it = dict.begin();
+	auto it = dict.begin();
 	advance( it, rand() % dict.size() );
 
 	cout << "\t\t\t'" << it->first << "'\n\t\tPress <Enter> to show meaning..";
@@ -373,7 +375,7 @@ void Dictionary::TakeTest()
 	cout << "\n\n" << it->second << "\n";
 }
 
-template<typename T> string Dictionary::ToString( const T& obj )
+template<typename T> string Dictionary::ToString( const T& obj ) const
 {
 	stringstream ss;
 	ss << obj;
@@ -407,11 +409,11 @@ Dictionary::Dictionary()
 	// Open the dictionary file one last time for the duration of the object. It will be closed only in the destructor.
 	dictFile.open( dictFilePath.string(), ios_base::out );
 
-	// Should fail only in if some race-condition occurs
+	// Should fail only if some race-condition occurs
 	if ( !dictFile )
 	{
 		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in opening '" + dictFilePath.string() + "' : " + strerror( errno );
-		throw errorMsg;
+		throw runtime_error( errorMsg );
 	}
 }
 
@@ -459,17 +461,22 @@ void Dictionary::DoReserved( const string& query )
 	{
 		Remove( afterSpace );
 	}
+	else
+	{
+		const string errorMsg = "Line " + ToString( __LINE__ ) + " : No action associated with the reserved keyword '" + beforeSpace + "'";
+		throw logic_error( errorMsg );
+	}
 }
 
 void Dictionary::Insert( const string& word )
 {
-	decltype( dict.begin() ) it;
+	auto it = dict.find( word );
 
-	string option;
 	// Word already present in the dictionary
-	if ( ( it = dict.find( word ) ) != dict.end() )
+	if ( it != dict.end() )
 	{
 		cout << "'" << it->first << "' already exists!!\n\n" << it->second << "\n\nWant to overwrite?? (y/n)  ";
+		string option;
 		getline( cin, option );
 		if ( option.size() && option[0] == 'y' )
 		{
@@ -501,13 +508,13 @@ void Dictionary::Insert( const string& word )
 	}
 }
 
-bool Dictionary::IsReserved( string query )
+bool Dictionary::IsReserved( string query ) const
 {
 	transform( query.begin(), query.end(), query.begin(), ::tolower );
 	return helpMap.count( FirstWord( query ) );
 }
 
-string Dictionary::ReadQuery()
+string Dictionary::ReadQuery() const
 {
 	string query;
 	cout << "\nEnter query - ";
@@ -553,9 +560,9 @@ int main()
 			}
 		}
 	}
-	catch ( const string& errorMsg )
+	catch ( const exception& ex )
 	{
-		cerr << errorMsg << endl;
+		cerr << ex.what() << endl;
 		return -1;
 	}
 }
