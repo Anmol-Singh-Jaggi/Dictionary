@@ -19,15 +19,15 @@ using  namespace std;
 using namespace boost::filesystem;
 
 #if BOOST_OS_LINUX
-#define PLATFORM_CONFIG_PATH    (getenv("HOME")+string("/.dict_config.txt"))
-#define PLATFORM_RESET_COMMAND  "reset"
+	#define PLATFORM_CONFIG_PATH    (getenv("HOME")+string("/.dict_config.txt"))
+	#define PLATFORM_RESET_COMMAND  "reset"
 
 #elif BOOST_OS_WINDOWS
-#define PLATFORM_CONFIG_PATH    (getenv("USERPROFILE")+string("\\My Documents\\dict_config.txt"))
-#define PLATFORM_RESET_COMMAND  "cls"
+	#define PLATFORM_CONFIG_PATH    (getenv("USERPROFILE")+string("\\My Documents\\dict_config.txt"))
+	#define PLATFORM_RESET_COMMAND  "cls"
 
 #else
-#error "Untested platform"
+	#error "Untested platform"
 #endif
 
 
@@ -51,7 +51,7 @@ class Dictionary
 	map<string, string> dict;
 
 	// A file handle to the dictionary file
-	fstream dictFile;
+	std::fstream dictFile;
 
 	// Path to the dictionary file.
 	// The dictionary file stores the word-meaning pairs.
@@ -68,10 +68,10 @@ class Dictionary
 	void Clear();
 
 	// Display the contents of the dictionary "num" pairs at a time
-	void Display( size_t num = 0 ) const;
+	void Display ( size_t num = 0 ) const;
 
 	// Retrieve the first word of the query string
-	string FirstWord( const string& query ) const;
+	string FirstWord ( const string& query ) const;
 
 	// Helper for the constructor
 	// Initialize helpMap
@@ -89,10 +89,10 @@ class Dictionary
 	string ReadMeaning() const;
 
 	// Remove a word-meaning pair from the dictionary
-	void Remove( const string& word );
+	void Remove ( const string& word );
 
 	// Retrieve the second word of the query string
-	string SecondWord( const string& query ) const;
+	string SecondWord ( const string& query ) const;
 
 	// Helper for the constructor
 	// Make sure that the configuration file is existing.
@@ -111,7 +111,7 @@ class Dictionary
 
 	// Utility function
 	// Convert any type to its string representation
-	template<typename T> string ToString( const T& obj ) const;
+	template<typename T> string ToString ( const T& obj ) const;
 
 public:
 
@@ -126,13 +126,13 @@ public:
 	~Dictionary();
 
 	// Perform the action associated with the reserved keyword
-	void DoReserved( const string& query );
+	void DoReserved ( const string& query );
 
 	// Add a word to the dictionary
-	void Insert( const string& word );
+	void Insert ( const string& word );
 
 	// Check if the query recieved is a keyword
-	bool IsReserved( string query ) const;
+	bool IsReserved ( string query ) const;
 
 	// Input a query
 	string ReadQuery() const;
@@ -149,7 +149,7 @@ void Dictionary::Clear()
 	cout << "Dictionary cleared!!\n\n";
 }
 
-void Dictionary::Display( size_t num ) const
+void Dictionary::Display ( size_t num ) const
 {
 	cout << "\t\t\t" << "Number of entries = " << dict.size() << "\n";
 
@@ -173,9 +173,9 @@ void Dictionary::Display( size_t num ) const
 	}
 }
 
-string Dictionary::FirstWord( const string& query ) const
+string Dictionary::FirstWord ( const string& query ) const
 {
-	stringstream ss( query );
+	std::stringstream ss ( query );
 	string ans;
 	ss >> ans;
 	return ans;
@@ -186,28 +186,32 @@ void Dictionary::InitHelp()
 	helpMap["help"] = "Show this help screen";
 	helpMap["screen"] = "Clear screen.";
 	helpMap["clear"] = "Delete all the entries in the dictionary.";
-	helpMap["show"] = "Show all the entries in the dictionary. Usage - 'show [number of words at a time]'";
-	helpMap["test"] = "Take a self-test by showing any randomly chosen word from the dictionary and making you guess its meaning.";
+	helpMap["show"] =
+	  "Show all the entries in the dictionary. Usage - 'show [number of words at a time]'";
+	helpMap["test"] =
+	  "Take a self-test by showing any randomly chosen word from the dictionary and making you guess its meaning.";
 	helpMap["remove"] = "Remove a word. Usage - 'remove <word>'";
 	helpMap["exit"] = "Exit after saving the dictionary safely to the file";
 }
 
 void Dictionary::ReadDictFilePathFromConfigFile()
 {
-	ifstream fin( configFilePath.string() );
+	std::ifstream fin ( configFilePath.string() );
 	// This will happen if there is a race condition and some other process deletes the config file just after we close it above.
 	if ( !fin )
 	{
-		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in reading '" + configFilePath.string() + "' : " + strerror( errno );
-		throw runtime_error( errorMsg );
+		const string errorMsg = "Line " + ToString ( __LINE__ ) +
+		                        " : Error in reading '" + configFilePath.string() + "' : " + strerror ( errno );
+		throw runtime_error ( errorMsg );
 	}
 
-	cout << "Trying to read the path of the dictionary file from the config file." << endl;
+	cout << "Trying to read the path of the dictionary file from the config file."
+	     << endl;
 
 	// Read the dictionary file path from the config file
 	string dictFilePathString;
-	getline( fin, dictFilePathString );
-	dictFilePath = path( dictFilePathString );
+	getline ( fin, dictFilePathString );
+	dictFilePath = path ( dictFilePathString );
 	cout << "The path of the dictionary file is - " << dictFilePath << endl;
 }
 
@@ -215,31 +219,36 @@ void Dictionary::ReadFromDictFile()
 {
 	cout << "Opening the dictionary file" << endl;
 
-	dictFile.open( dictFilePath.string(), ios_base::in );
+	dictFile.open ( dictFilePath.string(), ios_base::in );
 	if ( !dictFile )
 	{
-		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in opening '" + dictFilePath.string() + "' : " + strerror( errno );
-		throw runtime_error( errorMsg );
+		const string errorMsg = "Line " + ToString ( __LINE__ ) +
+		                        " : Error in opening '" + dictFilePath.string() + "' : " + strerror ( errno );
+		throw runtime_error ( errorMsg );
 	}
 
-	cout << "Reading the contents of the dictionary from the dictionary file." << endl;
+	cout << "Reading the contents of the dictionary from the dictionary file." <<
+	     endl;
 
 	// Read the contents of the dictionary file and load it in the dictionary data structure
 	string word, meaning;
-	while ( getline( dictFile, word, '$' ) )
+	while ( getline ( dictFile, word, '$' ) )
 	{
 		dictFile.get(); // Read the newline after word
-		if ( ( !word.empty() ) && getline( dictFile, meaning, '$' ) && ( !meaning.empty() ) )
+		if ( ( !word.empty() ) && getline ( dictFile, meaning, '$' ) &&
+		     ( !meaning.empty() ) )
 		{
-			dict.insert( make_pair( word, meaning ) );
+			dict.insert ( make_pair ( word, meaning ) );
 		}
 		dictFile.get(); // Read the newline after meaning
 
 		// Maybe we missed a '$' here or there
 		if ( !dictFile )
 		{
-			const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in reading '" + dictFilePath.string() + "' : The dictionary is in an inconsistent state";
-			throw runtime_error( errorMsg );
+			const string errorMsg = "Line " + ToString ( __LINE__ ) +
+			                        " : Error in reading '" + dictFilePath.string() +
+			                        "' : The dictionary is in an inconsistent state";
+			throw runtime_error ( errorMsg );
 		}
 	}
 	dictFile.close();
@@ -252,7 +261,7 @@ string Dictionary::ReadMeaning() const
 	char c;
 	while ( 1 )
 	{
-		cin.get( c );
+		cin.get ( c );
 		// If the character read is a newline and the previous character read was also a newline.
 		if ( meaning.size() && meaning[meaning.size() - 1] == '\n' && c == '\n' )
 		{
@@ -260,7 +269,7 @@ string Dictionary::ReadMeaning() const
 		}
 		meaning += c;
 	}
-	if ( meaning.find( '$' ) != string::npos )
+	if ( meaning.find ( '$' ) != string::npos )
 	{
 		cout << "The input cannot contain '$'" << endl;
 		meaning = "\n"; // so that Dictionary::Insert() ignores it
@@ -268,12 +277,12 @@ string Dictionary::ReadMeaning() const
 	return meaning;
 }
 
-void Dictionary::Remove( const string& word )
+void Dictionary::Remove ( const string& word )
 {
-	auto it = dict.find( word );
+	auto it = dict.find ( word );
 	if ( it != dict.end() )
 	{
-		dict.erase( it );
+		dict.erase ( it );
 		cout << "'" << word << "' erased.\n";
 	}
 	else
@@ -283,9 +292,9 @@ void Dictionary::Remove( const string& word )
 }
 
 
-string Dictionary::SecondWord( const string& query ) const
+string Dictionary::SecondWord ( const string& query ) const
 {
-	stringstream ss( query );
+	std::stringstream ss ( query );
 	string ans;
 	ss >> ans >> ans;
 	return ans;
@@ -296,7 +305,7 @@ void Dictionary::SetupConfigFile()
 	cout << "The configuration file is not present.\nCreating a new configuration file.\n";
 
 	// Create a new config file
-	ofstream fout( configFilePath.string() );
+	std::ofstream fout ( configFilePath.string() );
 
 	// If successful in creating the config file
 	if ( fout )
@@ -305,18 +314,20 @@ void Dictionary::SetupConfigFile()
 
 		cout << "Enter the path to store the dictionary file -:\n";
 		string dictFilePathString;
-		getline( cin, dictFilePathString );
-		dictFilePath = path( dictFilePathString );
+		getline ( cin, dictFilePathString );
+		dictFilePath = path ( dictFilePathString );
 
 		// Remove all symbolic links from the path
 		try
 		{
-			dictFilePath = canonical( dictFilePath.parent_path() ) / dictFilePath.filename();
+			dictFilePath = canonical ( dictFilePath.parent_path() ) /
+			               dictFilePath.filename();
 		}
 		catch ( const filesystem_error& ex )
 		{
-			const string errorMsg = "Line " + ToString( __LINE__ ) + " : Dictionary path '" + dictFilePath.string() + "' not valid : " + ex.what();
-			throw runtime_error( errorMsg );
+			const string errorMsg = "Line " + ToString ( __LINE__ ) + " : Dictionary path '"
+			                        + dictFilePath.string() + "' not valid : " + ex.what();
+			throw runtime_error ( errorMsg );
 		}
 
 		// Write the dictionary file path in the config file.
@@ -324,8 +335,10 @@ void Dictionary::SetupConfigFile()
 	}
 	else
 	{
-		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in creating '" + configFilePath.string() + "' : " + strerror( errno );
-		throw runtime_error( errorMsg );
+		const string errorMsg = "Line " + ToString ( __LINE__ ) +
+		                        " : Error in creating '" + configFilePath.string() + "' : " + strerror (
+		                          errno );
+		throw runtime_error ( errorMsg );
 	}
 
 	cout << "Path to the dictionary file successfully saved into the configuration file.\n";
@@ -336,14 +349,15 @@ void Dictionary::SetupDictFile()
 	cout << "No dictionary file present." <<  endl;
 
 	// Create a new dictionary file
-	dictFile.open( dictFilePath.string(), ios_base::out );
+	dictFile.open ( dictFilePath.string(), ios_base::out );
 
 	// If not successful in creating a new dictionary file
 	if ( !dictFile )
 	{
-		remove( configFilePath );
-		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in creating '" + dictFilePath.string() + "' : " + strerror( errno );
-		throw runtime_error( errorMsg );
+		remove ( configFilePath );
+		const string errorMsg = "Line " + ToString ( __LINE__ ) +
+		                        " : Error in creating '" + dictFilePath.string() + "' : " + strerror ( errno );
+		throw runtime_error ( errorMsg );
 	}
 
 	dictFile.close();
@@ -368,16 +382,16 @@ void Dictionary::TakeTest() const
 	}
 
 	auto it = dict.begin();
-	advance( it, rand() % dict.size() );
+	advance ( it, rand() % dict.size() );
 
 	cout << "\t\t\t'" << it->first << "'\n\t\tPress <Enter> to show meaning..";
 	cin.get();  // Wait for an "enter"
 	cout << "\n\n" << it->second << "\n";
 }
 
-template<typename T> string Dictionary::ToString( const T& obj ) const
+template<typename T> string Dictionary::ToString ( const T& obj ) const
 {
-	stringstream ss;
+	std::stringstream ss;
 	ss << obj;
 	return ss.str();
 }
@@ -391,7 +405,7 @@ Dictionary::Dictionary()
 	InitHelp();
 
 	// If the configuration file does not exists, then setup the config file
-	if ( !exists( configFilePath ) )
+	if ( !exists ( configFilePath ) )
 	{
 		SetupConfigFile();
 	}
@@ -399,7 +413,7 @@ Dictionary::Dictionary()
 	ReadDictFilePathFromConfigFile();
 
 	// If the dictionary file does not exist
-	if ( !exists( dictFilePath ) )
+	if ( !exists ( dictFilePath ) )
 	{
 		SetupDictFile();
 	}
@@ -407,19 +421,20 @@ Dictionary::Dictionary()
 	ReadFromDictFile();
 
 	// Open the dictionary file one last time for the duration of the object. It will be closed only in the destructor.
-	dictFile.open( dictFilePath.string(), ios_base::out );
+	dictFile.open ( dictFilePath.string(), ios_base::out );
 
 	// Should fail only if some race-condition occurs
 	if ( !dictFile )
 	{
-		const string errorMsg = "Line " + ToString( __LINE__ ) + " : Error in opening '" + dictFilePath.string() + "' : " + strerror( errno );
-		throw runtime_error( errorMsg );
+		const string errorMsg = "Line " + ToString ( __LINE__ ) +
+		                        " : Error in opening '" + dictFilePath.string() + "' : " + strerror ( errno );
+		throw runtime_error ( errorMsg );
 	}
 }
 
 Dictionary::~Dictionary()
 {
-	if ( exists( dictFilePath ) && dictFile )
+	if ( exists ( dictFilePath ) && dictFile )
 	{
 		cout << "Saving the dictionary's contents into the file" << endl;
 		for ( const auto& it : dict )
@@ -431,11 +446,12 @@ Dictionary::~Dictionary()
 	cout << "File saved!!" << endl;
 }
 
-void Dictionary::DoReserved( const string& query )
+void Dictionary::DoReserved ( const string& query )
 {
-	string beforeSpace = FirstWord( query );
-	string afterSpace = SecondWord( query );
-	transform( beforeSpace.begin(), beforeSpace.end(), beforeSpace.begin(), ::tolower );
+	string beforeSpace = FirstWord ( query );
+	string afterSpace = SecondWord ( query );
+	transform ( beforeSpace.begin(), beforeSpace.end(), beforeSpace.begin(),
+	            ::tolower );
 
 	if ( beforeSpace == "help" )
 	{
@@ -447,11 +463,11 @@ void Dictionary::DoReserved( const string& query )
 	}
 	else if ( beforeSpace == "show" )
 	{
-		Display( atoi( afterSpace.c_str() ) );
+		Display ( atoi ( afterSpace.c_str() ) );
 	}
 	else if ( beforeSpace == "screen" )
 	{
-		system( clearScreenCommand.c_str() );
+		system ( clearScreenCommand.c_str() );
 	}
 	else if ( beforeSpace == "test" )
 	{
@@ -459,25 +475,27 @@ void Dictionary::DoReserved( const string& query )
 	}
 	else if ( beforeSpace == "remove" )
 	{
-		Remove( afterSpace );
+		Remove ( afterSpace );
 	}
 	else
 	{
-		const string errorMsg = "Line " + ToString( __LINE__ ) + " : No action associated with the reserved keyword '" + beforeSpace + "'";
-		throw logic_error( errorMsg );
+		const string errorMsg = "Line " + ToString ( __LINE__ ) +
+		                        " : No action associated with the reserved keyword '" + beforeSpace + "'";
+		throw logic_error ( errorMsg );
 	}
 }
 
-void Dictionary::Insert( const string& word )
+void Dictionary::Insert ( const string& word )
 {
-	auto it = dict.find( word );
+	auto it = dict.find ( word );
 
 	// Word already present in the dictionary
 	if ( it != dict.end() )
 	{
-		cout << "'" << it->first << "' already exists!!\n\n" << it->second << "\n\nWant to overwrite?? (y/n)  ";
+		cout << "'" << it->first << "' already exists!!\n\n" << it->second <<
+		     "\n\nWant to overwrite?? (y/n)  ";
 		string option;
-		getline( cin, option );
+		getline ( cin, option );
 		if ( option.size() && option[0] == 'y' )
 		{
 			string temp = ReadMeaning();
@@ -508,18 +526,18 @@ void Dictionary::Insert( const string& word )
 	}
 }
 
-bool Dictionary::IsReserved( string query ) const
+bool Dictionary::IsReserved ( string query ) const
 {
-	transform( query.begin(), query.end(), query.begin(), ::tolower );
-	return helpMap.count( FirstWord( query ) );
+	transform ( query.begin(), query.end(), query.begin(), ::tolower );
+	return helpMap.count ( FirstWord ( query ) );
 }
 
 string Dictionary::ReadQuery() const
 {
 	string query;
 	cout << "\nEnter query - ";
-	getline( cin, query, '\n' );
-	if ( query.find( '$' ) != string::npos )
+	getline ( cin, query, '\n' );
+	if ( query.find ( '$' ) != string::npos )
 	{
 		cout << "The input cannot contain '$'" << endl;
 		query = ""; // so that main() ignores it
@@ -537,7 +555,7 @@ int main()
 {
 	try
 	{
-		srand( time( NULL ) );
+		srand ( time ( NULL ) );
 		Dictionary dictionary;
 		while ( 1 )
 		{
@@ -550,13 +568,13 @@ int main()
 			{
 				break;
 			}
-			else if ( dictionary.IsReserved( query ) )
+			else if ( dictionary.IsReserved ( query ) )
 			{
-				dictionary.DoReserved( query );
+				dictionary.DoReserved ( query );
 			}
 			else
 			{
-				dictionary.Insert( query );
+				dictionary.Insert ( query );
 			}
 		}
 	}
