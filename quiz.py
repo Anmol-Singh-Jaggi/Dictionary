@@ -11,11 +11,9 @@ def main():
     while True:
         # Select a random word-meaning pair
         word_meaning = random.choice(list(dictionary.items()))
-        # Select randomly whether to display word or meaning
-        choice = random.randint(0, 1)
-        print(word_meaning[choice])
+        print(word_meaning[0])
         input('??')
-        print(word_meaning[1 - choice])
+        print(word_meaning[1])
         print('\n' + '-' * 30 + '\n')
 
 
